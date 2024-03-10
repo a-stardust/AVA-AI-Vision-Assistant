@@ -1,0 +1,6 @@
+ultralytics
+gradio
+openai==0.28
+pyChatGPT
+git+https://github.com/openai/whisper.git
+pyttsx3
