@@ -8,6 +8,13 @@ from time import sleep
 import keyboard
 import cv2
 from yolo_detector import YoloDetector
+from text_extractor import TextExtractor
+
+from src.prompt import system
+
+extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
+
+
 
 warnings.filterwarnings("ignore")
 with open('GPT_SECRET_KEY.json') as f:
@@ -16,18 +23,30 @@ with open('GPT_SECRET_KEY.json') as f:
 openai.api_key = data["API_KEY"]
 print(data["API_KEY"])
 
-messages = [{"role": "system", "content": "You are AVA , visual assistant to blind people. u will be integrated with a camera and a object detection model which sends u the objects, people and data regarding the surrounding in real time. u have to talk to the user about what is infront of them and answer their queries using the data which is streamed to u every 5 seconds. talk less"}]
+messages = [{"role": "system", "content":system}]
 
 
 
 def CustomChatGPT(user_input):
-    messages.append({"role": "user", "content": user_input})
-    response = openai.ChatCompletion.create(
+    if 'read' in user_input:
+        print("reading")
+        extracted_text = extractor.extract_text_from_image("frame.jpg")
+        print(extracted_text)
+        messages.append({"role": "system", "content": extracted_text})
+        response = openai.ChatCompletion.create(
         model = "gpt-3.5-turbo",
-        messages = messages
-    )
-    ChatGPT_reply = response["choices"][0]["message"]["content"]
-    messages.append({"role": "assistant", "content": ChatGPT_reply})
+        messages = messages)
+        ChatGPT_reply = response["choices"][0]["message"]["content"]
+        messages.append({"role": "assistant", "content": ChatGPT_reply})
+
+    else:
+        messages.append({"role": "user", "content": user_input})
+        response = openai.ChatCompletion.create(
+            model = "gpt-3.5-turbo",
+            messages = messages
+        )
+        ChatGPT_reply = response["choices"][0]["message"]["content"]
+        messages.append({"role": "assistant", "content": ChatGPT_reply})
 
     return ChatGPT_reply
 
@@ -45,7 +64,7 @@ def object_detection():
             # Announce detected objects
             announcement = f"Objects detected: {log_string}"
             print(announcement)
-            print("jigijaga")
+            print("detection working")
             # Append announcement to conversation
             messages.append({"role": "system", "content": announcement})
 
