@@ -9,6 +9,7 @@ import keyboard
 import cv2
 from yolo_detector import YoloDetector
 from text_extractor import TextExtractor
+from face_recognizer import recognize_faces
 
 from src.prompt import system
 
@@ -64,9 +65,14 @@ def object_detection():
             # Announce detected objects
             announcement = f"Objects detected: {log_string}"
             print(announcement)
-            print("detection working")
+            print("detection working    ")
+            if 'person' in announcement:
+                faces = recognize_faces("frame.jpg")
+                messages.append({"role": "system", "content": 'persons detected:' + str(faces)})
+                print(faces)
             # Append announcement to conversation
-            messages.append({"role": "system", "content": announcement})
+            else:
+                messages.append({"role": "system", "content": announcement})
 
         # Break loop if 'q' is pressed
         if cv2.waitKey(1) & 0xFF == ord('q') or keyboard.is_pressed('q'):
