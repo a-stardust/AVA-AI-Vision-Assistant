@@ -68,7 +68,7 @@ def object_detection():
             print("detection working    ")
             if 'person' in announcement:
                 faces = recognize_faces("frame.jpg")
-                messages.append({"role": "system", "content": 'persons detected:' + str(faces)})
+                messages.append({"role": "system", "content": 'persons detected:' + str(faces) + 'objected detected:'+ announcement})
                 print(faces)
             # Append announcement to conversation
             else:
