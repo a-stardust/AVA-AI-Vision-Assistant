@@ -63,7 +63,7 @@ def object_detection():
         log_string = detector.detect_objects()
         if log_string:
             # Announce detected objects
-            announcement = f"Objects detected: {log_string}"
+            announcement = f"Objects detected: {log_string} dog"
             print(announcement)
             print("detection working    ")
             if 'person' in announcement:
@@ -71,6 +71,7 @@ def object_detection():
                 messages.append({"role": "system", "content": 'persons detected:' + str(faces) + 'objected detected:'+ announcement})
                 print(faces)
             # Append announcement to conversation
+
             else:
                 messages.append({"role": "system", "content": announcement})
 
