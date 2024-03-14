@@ -83,7 +83,21 @@ def object_detection():
 object_detection_thread = threading.Thread(target=object_detection)
 object_detection_thread.daemon = True
 object_detection_thread.start()
-demo = gr.Interface(fn=CustomChatGPT, inputs=gr.Audio(sources="microphone"), outputs="audio")
+
+title = "AVA - AI Vision Assistant"
+description = '''AVA is your friendly vision assistant designed to help you navigate the world with confidence. Using real-time data from your surroundings, AVA can describe objects, people, and even read text aloud.
+
+Key Features:
+
+Real-time Object & People Detection: Stay informed about your surroundings.
+Text Reading: Need something read? AVA can handle it with OCR.
+Person Recognition: Get notified when familiar faces are nearby.
+Reliable Information: AVA only speaks when it has accurate data.
+Let AVA be your eyes and guide you through your day!
+'''
+
+
+demo = gr.Interface(fn=CustomChatGPT,title=title, description=description, inputs=gr.Audio(sources="microphone"), outputs="audio")
 demo.launch(share=True)
 
 
