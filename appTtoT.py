@@ -1,5 +1,5 @@
 from openai import OpenAI
-from openai import OpenAI
+from playsound import playsound
 import gradio
 import warnings
 import pyttsx3
@@ -92,19 +92,19 @@ def object_detection():
                 else:
                     messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
                     print(faces)
-                    names=''
-                    if len(faces) > 1:
-                        for i in range(0,len(faces)-1):
-                            names+=faces[i]
-                            names+=' and '
-                        names+=faces[len(faces)-1]
-                        names= 'say hi to' + names
-                        tts(names)
+                    # names=''
+                    # if len(faces) > 1:
+                    #     for i in range(0,len(faces)-1):
+                    #         names+=faces[i]
+                    #         names+=' and '
+                    #     names+=faces[len(faces)-1]
+                    #     names= 'say hi to' + names
+                    #     tts(names)
                       
 
-                    elif len(faces)==1 :
-                        names='say hi to' + str(faces[0])
-                        tts(names)
+                    # elif len(faces)==1 :
+                    #     names='say hi to' + str(faces[0])
+                    #     tts(names)
 
             # Append announcement to conversation
 
@@ -121,16 +121,16 @@ def object_detection():
     cv2.destroyAllWindows()
 
 
-def tts(text):
-    engine = pyttsx3.init()
-    engine.setProperty("rate", 150)
-    engine.setProperty("voice", "english-us")
-    try:
-        if text:
-            engine.say(text)
-            engine.runAndWait()
-    except:
-        pass
+# def tts(text):
+#     engine = pyttsx3.init()
+#     engine.setProperty("rate", 150)
+#     engine.setProperty("voice", "english-us")
+#     try:
+#         if text:
+#             engine.say(text)
+#             engine.runAndWait()
+#     except:
+#         pass
 
 
 # Start object detection in a separate thread
@@ -138,9 +138,9 @@ object_detection_thread = threading.Thread(target=object_detection)
 object_detection_thread.daemon = True
 object_detection_thread.start()
 
-TTSthread = threading.Thread(target=tts)
-TTSthread.daemon = True
-TTSthread.start()
+# TTSthread = threading.Thread(target=tts)
+# TTSthread.daemon = True
+# TTSthread.start()
 
 
 demo = gradio.Interface(

@@ -1,4 +1,5 @@
 from openai import OpenAI
+from playsound import playsound
 import gradio as gr
 import warnings
 import pyttsx3
@@ -100,14 +101,21 @@ def object_detection():
                 print(faces)
                 # names=''
                 # if len(faces) > 1:
-                #     for i in range(0,len(faces)-1):
-                #         names+=faces[i]
-                #         names+=' and '
-                #     names+=faces[len(faces)-1]
-                #     engine.say(f'say hi to {names}')
+                #         for i in range(0,len(faces)-1):
+                #             names+=faces[i]
+                #             names+=' and '
+                #         names+=faces[len(faces)-1]
+                #         names= 'say hi to' + names
+                #         engine.save_to_file(names, "person.mp3")
+                #         sleep(1)                    #LINE ADDED
+                #         engine.runAndWait()
+                #         playsound('person.mp3')                    
 
-                # else :
-                #     engine.say(f'say hi to {faces[0]}')
+                # elif len(faces)==1 :
+                #     names='say hi to' + str(faces[0])
+                #     engine.save_to_file(names, "person.mp3")
+                #     engine.runAndWait()
+                #     playsound('/person.mp3')                    
             # Append announcement to conversation
 
             else:
