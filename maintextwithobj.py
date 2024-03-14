@@ -1,6 +1,5 @@
-import openai
+from openai import OpenAI
 import gradio
-import json
 import warnings
 import json
 import threading
@@ -10,19 +9,21 @@ import cv2
 from yolo_detector import YoloDetector
 from text_extractor import TextExtractor
 from face_recognizer import recognize_faces
-
 from src.prompt import system
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
 
 
 warnings.filterwarnings("ignore")
-with open('GPT_SECRET_KEY.json') as f:
-    data = json.load(f)
-
-openai.api_key = data["API_KEY"]
-print(data["API_KEY"])
+client = OpenAI(
+    # This is the default and can be omitted
+    api_key=os.environ.get("api"),
+)
 
 messages = [{"role": "system", "content":system}]
 
@@ -34,19 +35,20 @@ def CustomChatGPT(user_input):
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
         messages.append({"role": "system", "content": extracted_text})
-        response = openai.ChatCompletion.create(
-        model = "gpt-3.5-turbo",
-        messages = messages)
-        ChatGPT_reply = response["choices"][0]["message"]["content"]
+
+        response = client.chat.completions.create(
+        messages=messages,
+        model="gpt-3.5-turbo")
+        
+        ChatGPT_reply =response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
 
     else:
         messages.append({"role": "user", "content": user_input})
-        response = openai.ChatCompletion.create(
-            model = "gpt-3.5-turbo",
-            messages = messages
-        )
-        ChatGPT_reply = response["choices"][0]["message"]["content"]
+        response = client.chat.completions.create(
+        messages=messages,
+        model="gpt-3.5-turbo")
+        ChatGPT_reply = response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
 
     return ChatGPT_reply
@@ -63,7 +65,7 @@ def object_detection():
         log_string = detector.detect_objects()
         if log_string:
             # Announce detected objects
-            announcement = f"Objects detected: {log_string}"
+            announcement = f"Objects detected: {log_string} dog"
             print(announcement)
             print("detection working    ")
             if 'person' in announcement:
@@ -71,6 +73,7 @@ def object_detection():
                 messages.append({"role": "system", "content": 'persons detected:' + str(faces) + 'objected detected:'+ announcement})
                 print(faces)
             # Append announcement to conversation
+
             else:
                 messages.append({"role": "system", "content": announcement})
 
