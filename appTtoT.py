@@ -141,10 +141,20 @@ object_detection_thread.start()
 # TTSthread = threading.Thread(target=tts)
 # TTSthread.daemon = True
 # TTSthread.start()
-
+title = "AVA - AI Vision Assistant"
+description = '''AVA is your friendly vision assistant designed to help you navigate the world with confidence. Using real-time data from your surroundings, AVA can describe objects, people, and even read text aloud.
+\n
+Key Features:
+\n
+Real-time Object & People Detection: Stay informed about your surroundings.\n
+Text Reading: Need something read? AVA can handle it with OCR.\n
+Person Recognition: Get notified when familiar faces are nearby.\n
+Reliable Information: AVA only speaks when it has accurate data.\n
+Let AVA be your eyes and guide you through your day!
+'''
 
 demo = gradio.Interface(
-    fn=CustomChatGPT, inputs = "text", outputs = "text", title = "AVA"
+    fn=CustomChatGPT, inputs = "text", outputs = "text",title=title, description=description
     )
 
 demo.launch(share=True)

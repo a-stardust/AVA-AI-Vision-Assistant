@@ -5,7 +5,6 @@ import warnings
 import pyttsx3
 import threading
 from time import sleep
-import keyboard
 import cv2
 from yolo_detector import YoloDetector
 from text_extractor import TextExtractor
@@ -86,13 +85,13 @@ object_detection_thread.start()
 
 title = "AVA - AI Vision Assistant"
 description = '''AVA is your friendly vision assistant designed to help you navigate the world with confidence. Using real-time data from your surroundings, AVA can describe objects, people, and even read text aloud.
-
+\n
 Key Features:
-
-Real-time Object & People Detection: Stay informed about your surroundings.
-Text Reading: Need something read? AVA can handle it with OCR.
-Person Recognition: Get notified when familiar faces are nearby.
-Reliable Information: AVA only speaks when it has accurate data.
+\n
+Real-time Object & People Detection: Stay informed about your surroundings.\n
+Text Reading: Need something read? AVA can handle it with OCR.\n
+Person Recognition: Get notified when familiar faces are nearby.\n
+Reliable Information: AVA only speaks when it has accurate data.\n
 Let AVA be your eyes and guide you through your day!
 '''
 
