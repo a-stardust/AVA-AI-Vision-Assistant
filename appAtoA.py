@@ -98,6 +98,16 @@ def object_detection():
                 faces = recognize_faces("frame.jpg")
                 messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
                 print(faces)
+                # names=''
+                # if len(faces) > 1:
+                #     for i in range(0,len(faces)-1):
+                #         names+=faces[i]
+                #         names+=' and '
+                #     names+=faces[len(faces)-1]
+                #     engine.say(f'say hi to {names}')
+
+                # else :
+                #     engine.say(f'say hi to {faces[0]}')
             # Append announcement to conversation
 
             else:

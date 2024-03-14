@@ -2,6 +2,7 @@ from openai import OpenAI
 from openai import OpenAI
 import gradio
 import warnings
+import pyttsx3
 import threading
 from time import sleep
 import keyboard
@@ -21,7 +22,9 @@ load_dotenv()
 
 extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
-
+engine = pyttsx3.init()
+engine.setProperty("rate", 150)
+engine.setProperty("voice", "english-us")
 
 warnings.filterwarnings("ignore")
 client = OpenAI(
@@ -83,8 +86,26 @@ def object_detection():
             print("detection working")
             if 'person' in announcement:
                 faces = recognize_faces("frame.jpg")
-                messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
-                print(faces)
+                if len(faces)==0:
+                    print("no person detected")
+                    messages.append({"role": "system", "content": announcement})
+                else:
+                    messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
+                    print(faces)
+                    names=''
+                    if len(faces) > 1:
+                        for i in range(0,len(faces)-1):
+                            names+=faces[i]
+                            names+=' and '
+                        names+=faces[len(faces)-1]
+                        names= 'say hi to' + names
+                        tts(names)
+                      
+
+                    elif len(faces)==1 :
+                        names='say hi to' + str(faces[0])
+                        tts(names)
+
             # Append announcement to conversation
 
 
@@ -99,10 +120,28 @@ def object_detection():
     cap.release()
     cv2.destroyAllWindows()
 
+
+def tts(text):
+    engine = pyttsx3.init()
+    engine.setProperty("rate", 150)
+    engine.setProperty("voice", "english-us")
+    try:
+        if text:
+            engine.say(text)
+            engine.runAndWait()
+    except:
+        pass
+
+
 # Start object detection in a separate thread
 object_detection_thread = threading.Thread(target=object_detection)
 object_detection_thread.daemon = True
 object_detection_thread.start()
+
+TTSthread = threading.Thread(target=tts)
+TTSthread.daemon = True
+TTSthread.start()
+
 
 demo = gradio.Interface(
     fn=CustomChatGPT, inputs = "text", outputs = "text", title = "AVA"
