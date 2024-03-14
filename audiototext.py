@@ -1,5 +1,5 @@
 from openai import OpenAI
-import gradio
+import gradio as gr
 import warnings
 import threading
 from time import sleep
@@ -10,13 +10,15 @@ from text_extractor import TextExtractor
 from face_recognizer import recognize_faces
 from src.prompt import system
 import os
+import numpy as np
+
 from dotenv import load_dotenv
 load_dotenv()
+from transformers import pipeline
 
+transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
 
 extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
-
-
 
 warnings.filterwarnings("ignore")
 client = OpenAI(
@@ -24,11 +26,18 @@ client = OpenAI(
     api_key=os.environ.get("api"),
 )
 
+
 messages = [{"role": "system", "content":system}]
 
 
 
-def CustomChatGPT(user_input):
+def CustomChatGPT(audio):
+
+    sr, y = audio
+    y = y.astype(np.float32)
+    y /= np.max(np.abs(y))
+    user_input=transcriber({"sampling_rate": sr, "raw": y})["text"]
+
     if 'read' in user_input:
         print("reading")
         messages.append({"role": "user", "content": user_input})
@@ -85,15 +94,14 @@ def object_detection():
     cap.release()
     cv2.destroyAllWindows()
 
+
 # Start object detection in a separate thread
 object_detection_thread = threading.Thread(target=object_detection)
 object_detection_thread.daemon = True
 object_detection_thread.start()
 
-demo = gradio.Interface(
-    fn=CustomChatGPT, inputs = "text", outputs = "text", title = "AVA"
-    )
 
+demo = gr.Interface(fn=CustomChatGPT, inputs=gr.Audio(sources="microphone"), outputs="text")
 demo.launch(share=True)
 
 

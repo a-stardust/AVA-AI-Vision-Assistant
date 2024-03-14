@@ -1,4 +1,3 @@
-import cv2
 from ultralytics import YOLO
 
 class YoloDetector:
@@ -13,20 +12,18 @@ class YoloDetector:
             boxes = r.boxes
             if len(r) == 0:
                 if probs is not None:
-                    print(log_string)
+                    return f'objects detected:{log_string}'
                 else:
-                    print(f"{log_string}(no detections), ")
+                    return (f"objects detected:{log_string}(no detections), ")
             if probs is not None:
                 log_string += f"{', '.join(f'{r.names[j]} {probs.data[j]:.2f}' for j in probs.top5)}, "
             if boxes:
                 for c in boxes.cls.unique():
                     n = (boxes.cls == c).sum()  # detections per class
                     log_string += f"{n} {r.names[int(c)]}{'s' * (n > 1)}, "
-        return log_string
+        return f'objects detected:{log_string}'
 
-    def release(self):
-        self.cap.release()
-        cv2.destroyAllWindows()
+    
 
 # Example usage in another script:
 # from yolo_detector import YoloDetector

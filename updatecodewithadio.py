@@ -1,4 +1,3 @@
-import openai
 from openai import OpenAI
 import gradio as gr
 import warnings
@@ -12,14 +11,26 @@ from text_extractor import TextExtractor
 from face_recognizer import recognize_faces
 from src.prompt import system
 import os
+import numpy as np
+
+engine = pyttsx3.init()
+engine.setProperty("rate", 150)
+engine.setProperty("voice", "english-us")
+
 from dotenv import load_dotenv
 load_dotenv()
+
+from transformers import pipeline
+
+transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
 
 extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
 
 
 warnings.filterwarnings("ignore")
+
+
 
 
 
@@ -34,20 +45,25 @@ messages = [{"role": "system", "content":system}]
 
 
 def CustomChatGPT(audio):
-    
-    user_input = client.audio.transcriptions.create(
-    model="whisper-1", 
-    file=audio)
 
-    if 'read' in user_input:
+    sr, y = audio
+    y = y.astype(np.float32)
+    y /= np.max(np.abs(y))
+    user_input=transcriber({"sampling_rate": sr, "raw": y})["text"]
+    print (user_input)
+
+    if 'read' in str(user_input):
         print("reading")
+        messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
-        messages.append({"role": "system", "content": extracted_text})
+        messages.append({"role": "system", "content": f'extracted text:{extracted_text}'})
+
         response = client.chat.completions.create(
         messages=messages,
         model="gpt-3.5-turbo")
-        ChatGPT_reply = response.choices[0].message.content
+        
+        ChatGPT_reply =response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
 
     else:
@@ -58,13 +74,10 @@ def CustomChatGPT(audio):
         ChatGPT_reply = response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
 
-    engine = pyttsx3.init()
-    engine.setProperty("rate", 150)
-    engine.setProperty("voice", "english-us")
-    engine.say(ChatGPT_reply)
+    engine.save_to_file(ChatGPT_reply, "response.mp3")
     engine.runAndWait()
 
-    return ChatGPT_reply
+    return "response.mp3"
 
 def object_detection():
     detector = YoloDetector()
@@ -78,12 +91,12 @@ def object_detection():
         log_string = detector.detect_objects()
         if log_string:
             # Announce detected objects
-            announcement = f"Objects detected: {log_string} dog"
+            announcement = log_string
             print(announcement)
-            print("detection working    ")
+            print("detection working")
             if 'person' in announcement:
                 faces = recognize_faces("frame.jpg")
-                messages.append({"role": "system", "content": 'persons detected:' + str(faces) + 'objected detected:'+ announcement})
+                messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
                 print(faces)
             # Append announcement to conversation
 
@@ -104,7 +117,7 @@ object_detection_thread.daemon = True
 object_detection_thread.start()
 
 
-demo = gr.Interface(fn=CustomChatGPT, inputs=gr.Audio(sources="microphone", type="filepath"), outputs="audio")
+demo = gr.Interface(fn=CustomChatGPT, inputs=gr.Audio(sources="microphone"), outputs="audio")
 
 
 

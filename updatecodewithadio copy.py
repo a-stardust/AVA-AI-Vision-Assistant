@@ -1,6 +1,8 @@
+import openai
 from openai import OpenAI
-import gradio
+import gradio as gr
 import warnings
+import pyttsx3
 import threading
 from time import sleep
 import keyboard
@@ -13,34 +15,39 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-
 extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 
 
 
 warnings.filterwarnings("ignore")
+
+
+
 client = OpenAI(
     # This is the default and can be omitted
     api_key=os.environ.get("api"),
 )
 
+
 messages = [{"role": "system", "content":system}]
 
 
 
-def CustomChatGPT(user_input):
+def CustomChatGPT(audio):
+    
+    user_input = client.audio.transcriptions.create(
+    model="whisper-1", 
+    file=audio)
+
     if 'read' in user_input:
         print("reading")
-        messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
-        messages.append({"role": "system", "content": f'extracted text:{extracted_text}'})
-
+        messages.append({"role": "system", "content": extracted_text})
         response = client.chat.completions.create(
         messages=messages,
         model="gpt-3.5-turbo")
-        
-        ChatGPT_reply =response.choices[0].message.content
+        ChatGPT_reply = response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
 
     else:
@@ -50,6 +57,12 @@ def CustomChatGPT(user_input):
         model="gpt-3.5-turbo")
         ChatGPT_reply = response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
+
+    engine = pyttsx3.init()
+    engine.setProperty("rate", 150)
+    engine.setProperty("voice", "english-us")
+    engine.say(ChatGPT_reply)
+    engine.runAndWait()
 
     return ChatGPT_reply
 
@@ -65,12 +78,12 @@ def object_detection():
         log_string = detector.detect_objects()
         if log_string:
             # Announce detected objects
-            announcement = log_string
+            announcement = f"Objects detected: {log_string} dog"
             print(announcement)
-            print("detection working")
+            print("detection working    ")
             if 'person' in announcement:
                 faces = recognize_faces("frame.jpg")
-                messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
+                messages.append({"role": "system", "content": 'persons detected:' + str(faces) + 'objected detected:'+ announcement})
                 print(faces)
             # Append announcement to conversation
 
@@ -90,9 +103,10 @@ object_detection_thread = threading.Thread(target=object_detection)
 object_detection_thread.daemon = True
 object_detection_thread.start()
 
-demo = gradio.Interface(
-    fn=CustomChatGPT, inputs = "text", outputs = "text", title = "AVA"
-    )
+
+demo = gr.Interface(fn=CustomChatGPT, inputs=gr.Audio(sources="microphone", type="filepath"), outputs="audio")
+
+
 
 demo.launch(share=True)
 
