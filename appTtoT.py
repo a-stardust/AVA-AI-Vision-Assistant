@@ -154,7 +154,7 @@ Let AVA be your eyes and guide you through your day!
 '''
 
 demo = gradio.Interface(
-    fn=CustomChatGPT, inputs = "text", outputs = "text",title=title, description=description
+    fn=CustomChatGPT, inputs = "text", live=True, outputs = "text",title=title, description=description
     )
 
 demo.launch(share=True)

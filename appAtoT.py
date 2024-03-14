@@ -111,7 +111,7 @@ Person Recognition: Get notified when familiar faces are nearby.\n
 Reliable Information: AVA only speaks when it has accurate data.\n
 Let AVA be your eyes and guide you through your day!
 '''
-demo = gr.Interface(fn=CustomChatGPT, inputs=gr.Audio(sources="microphone"), outputs="text",title=title, description=description)
+demo = gr.Interface(fn=CustomChatGPT, live=True, inputs=gr.Audio(sources="microphone"), outputs="text",title=title, description=description)
 demo.launch(share=True)
 
 

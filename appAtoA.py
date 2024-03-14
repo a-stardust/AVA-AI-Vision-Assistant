@@ -96,7 +96,7 @@ Let AVA be your eyes and guide you through your day!
 '''
 
 
-demo = gr.Interface(fn=CustomChatGPT,title=title, description=description, inputs=gr.Audio(sources="microphone"), outputs="audio")
+demo = gr.Interface(fn=CustomChatGPT, live=True, title=title, description=description, inputs=gr.Audio(sources="microphone"), outputs="audio")
 demo.launch(share=True)
 
 
