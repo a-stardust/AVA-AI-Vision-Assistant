@@ -38,7 +38,7 @@ def CustomChatGPT(audio):
     y /= np.max(np.abs(y))
     user_input=transcriber({"sampling_rate": sr, "raw": y})["text"]
 
-    if 'read' in user_input:
+    if 'read' or 'Read' in user_input:
         print("reading")
         messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")

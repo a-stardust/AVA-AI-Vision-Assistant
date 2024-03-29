@@ -46,7 +46,7 @@ def CustomChatGPT(user_input):
         messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
-        messages.append({"role": "system", "content": f'extracted text:{extracted_text}'})
+        messages.append({"role": "system", "content":'extracted text' + extracted_text})
 
         response = client.chat.completions.create(
         messages=messages,
@@ -154,7 +154,7 @@ Let AVA be your eyes and guide you through your day!
 '''
 
 demo = gradio.Interface(
-    fn=CustomChatGPT, inputs = "text", live=True, outputs = "text",title=title, description=description
+    fn=CustomChatGPT, inputs = "text", outputs = "text",title=title, description=description
     )
 
 demo.launch(share=True)

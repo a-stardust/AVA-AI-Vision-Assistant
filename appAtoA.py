@@ -1,5 +1,4 @@
 from openai import OpenAI
-from playsound import playsound
 import gradio as gr
 import warnings
 import pyttsx3
@@ -32,13 +31,14 @@ def CustomChatGPT(audio):
     y = y.astype(np.float32)
     y /= np.max(np.abs(y))
     user_input=transcriber({"sampling_rate": sr, "raw": y})["text"]
-    print (user_input)
-    if 'read' in str(user_input):
+    print(user_input)
+    if 'read' or 'Read' in str(user_input):
         print("reading")
         messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
-        messages.append({"role": "system", "content": f'extracted text:{extracted_text}'})
+        text='extracted text' + extracted_text
+        messages.append({"role": "system", "content": text})
         response = client.chat.completions.create(
         messages=messages,
         model="gpt-3.5-turbo")
