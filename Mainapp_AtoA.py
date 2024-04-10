@@ -32,7 +32,7 @@ def CustomChatGPT(audio):
     y /= np.max(np.abs(y))
     user_input=transcriber({"sampling_rate": sr, "raw": y})["text"]
     print(user_input)
-    if 'read' or 'Read' in str(user_input):
+    if 'read' in str(user_input) or 'Read' in str(user_input):
         print("reading")
         messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")
@@ -62,6 +62,7 @@ def object_detection():
         if not ret:
             print("Failed to capture frame")
             break
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
         cv2.imwrite('frame.jpg', frame)
         log_string = detector.detect_objects()
         if log_string:
