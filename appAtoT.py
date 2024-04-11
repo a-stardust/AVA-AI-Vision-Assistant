@@ -5,9 +5,9 @@ import threading
 from time import sleep
 import keyboard
 import cv2
-from yolo_detector import YoloDetector
-from text_extractor import TextExtractor
-from face_recognizer import recognize_faces
+from src.yolo_detector import YoloDetector
+from src.text_extractor import TextExtractor
+from src.face_recognizer import recognize_faces
 from src.prompt import system
 import os
 import numpy as np
@@ -132,7 +132,7 @@ import sys
 def run_detector_script():
     try:
         # Try to run the script using the same Python interpreter as the main application
-        subprocess.run([sys.executable, "detector.py", "--train", "-m=hog"], check=True)
+        subprocess.run([sys.executable, "src/detector.py", "--train", "-m=hog"], check=True)
         print("Detector script executed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error executing detector script: {e}")

@@ -6,7 +6,7 @@ AVA is an innovative AI-driven solution designed to provide essential support to
 
 - **Real-time Object & People Detection**: Stay informed about your surroundings.
 - **Text Reading**: Extract text from images and read aloud.
-- **Person Recognition**: Identify familiar faces nearby.
+- **Person Recognition**: Identify familiar faces nearby and add new faces.
 - **Natural Language Interaction**: Engage in seamless conversation powered by GPT3.5 with AVA.
 - **User-Friendly Interface**: Intuitive UI powered by Gradio for easy interaction.
 
@@ -20,7 +20,7 @@ AVA is an innovative AI-driven solution designed to provide essential support to
 - `yolo_detector.py`: Python script containing the YOLO v8 object detection implementation.
 - `face_recognizer.py`: Python script containing the face recognition implementation.
 - `text_extractor.py`: Python script containing the text extraction functionality using Tesseract OCR.
-- `src/`: Directory containing system prompt for the chatbot.
+- `src/`: Directory containing system prompt and the tools used in the chatbot.
 - `output/`: Directory containing trained face recognizer model.
 - `yolov8s.pt`: Pretrained YOLO v8 object detection Model.
 

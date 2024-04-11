@@ -1,5 +1,4 @@
 from openai import OpenAI
-from playsound import playsound
 import gradio
 import warnings
 import pyttsx3
@@ -7,13 +6,12 @@ import threading
 from time import sleep
 import keyboard
 import cv2
-from yolo_detector import YoloDetector
-from text_extractor import TextExtractor
-from face_recognizer import recognize_faces
+from src.yolo_detector import YoloDetector
+from src.text_extractor import TextExtractor
+from src.face_recognizer import recognize_faces
 from src.prompt import system
 import os
 from dotenv import load_dotenv
-import datetime
 load_dotenv()
 
 import os
@@ -142,7 +140,7 @@ import sys
 
 def run_detector_script():
     try:
-        subprocess.run([sys.executable, "detector.py", "--train", "-m=hog"], check=True)
+        subprocess.run([sys.executable, "src/detector.py", "--train", "-m=hog"], check=True)
         print("Detector script executed successfully.")
     except subprocess.CalledProcessError as e:
         print(f"Error executing detector script: {e}")
