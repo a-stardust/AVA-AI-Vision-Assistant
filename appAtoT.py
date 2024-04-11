@@ -51,7 +51,7 @@ def CustomChatGPT(audio):
         
         ChatGPT_reply =response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
-    if "save the person as" in str(user_input).lower():
+    if "save this person as" in str(user_input).lower():
         words = str(user_input).split()
         last_word = words[-1]
         save_screenshots(last_word,'frame.jpg')

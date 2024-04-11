@@ -29,56 +29,51 @@ engine.setProperty("voice", "english-us")
 
 warnings.filterwarnings("ignore")
 client = OpenAI(
-    # This is the default and can be omitted
     api_key=os.environ.get("api"),
 )
-client = OpenAI(
-    # This is the default and can be omitted
-    api_key=os.environ.get("api"),
-)
-
 messages = [{"role": "system", "content":system}]
 
+def addusermessage(message):
+    global messages
+    messages.append({"role": "user", "content": message})
 
+def addsystemmessage(message):
+    global messages
+    messages.append({"role": "system", "content": message})
+
+def addassistantmessage(message):
+    global messages
+    messages.append({"role": "assistant", "content": message})
+
+def gptreply():
+    global messages
+    response = client.chat.completions.create(messages=messages,model="gpt-3.5-turbo")
+    ChatGPT_reply =response.choices[0].message.content
+    return ChatGPT_reply
 
 def CustomChatGPT(user_input):
     if 'read' in user_input.lower():
         print("reading")
-        messages.append({"role": "user", "content": user_input})
+        addusermessage(user_input)
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
-        messages.append({"role": "system", "content":'extracted text' + extracted_text})
-
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        
-        ChatGPT_reply =response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ChatGPT_reply})
-    if "save the person as" in str(user_input).lower():
+        text='extracted text' + extracted_text
+        addsystemmessage(text)
+        ChatGPT_reply =gptreply()
+        addassistantmessage(ChatGPT_reply)
+    if "save this person as" in str(user_input).lower():
         words = str(user_input).split()
         last_word = words[-1]
         save_screenshots(last_word,'frame.jpg')
         run_detector_script()
-        messages.append({"role": "user", "content": user_input})
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        ChatGPT_reply = response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ChatGPT_reply})
+        addusermessage(user_input)
+        ChatGPT_reply = gptreply()
+        addassistantmessage(ChatGPT_reply)
 
     else:
-        messages.append({"role": "user", "content": user_input})
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        ChatGPT_reply = response.choices[0].message.content
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        ChatGPT_reply = response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ChatGPT_reply})
-
+        addusermessage(user_input)
+        ChatGPT_reply = gptreply()
+        addassistantmessage(ChatGPT_reply)
     return ChatGPT_reply
 
 def object_detection():

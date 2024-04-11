@@ -13,6 +13,8 @@ import os
 import numpy as np
 from transformers import pipeline
 from dotenv import load_dotenv
+import subprocess
+import sys
 warnings.filterwarnings("ignore")
 
 engine = pyttsx3.init()
@@ -25,7 +27,30 @@ extractor = TextExtractor(r'C:\Program Files\Tesseract-OCR\tesseract.exe')
 client = OpenAI(
     api_key=os.environ.get("api"),
 )
+
+
+
 messages = [{"role": "system", "content":system}]
+
+def addusermessage(message):
+    global messages
+    messages.append({"role": "user", "content": message})
+
+def addsystemmessage(message):
+    global messages
+    messages.append({"role": "system", "content": message})
+
+def addassistantmessage(message):
+    global messages
+    messages.append({"role": "assistant", "content": message})
+
+def gptreply():
+    global messages
+    response = client.chat.completions.create(messages=messages,model="gpt-3.5-turbo")
+    ChatGPT_reply =response.choices[0].message.content
+    return ChatGPT_reply
+
+
 def CustomChatGPT(audio):
     sr, y = audio
     y = y.astype(np.float32)
@@ -34,34 +59,26 @@ def CustomChatGPT(audio):
     print(user_input)
     if 'read' in str(user_input).lower():
         print("reading")
-        messages.append({"role": "user", "content": user_input})
+        addusermessage(user_input)
         extracted_text = extractor.extract_text_from_image("frame.jpg")
         print(extracted_text)
         text='extracted text' + extracted_text
-        messages.append({"role": "system", "content": text})
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        ChatGPT_reply =response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ChatGPT_reply})
-    if "save the person as" in str(user_input).lower():
+        addsystemmessage(text)
+        ChatGPT_reply =gptreply()
+        addassistantmessage(ChatGPT_reply)
+        sleep(1)
+    if "save this person as" in str(user_input).lower():
         words = str(user_input).split()
         last_word = words[-1]
         save_screenshots(last_word,'frame.jpg')
         run_detector_script()
-        messages.append({"role": "user", "content": user_input})
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        ChatGPT_reply = response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ChatGPT_reply})
+        addusermessage(user_input)
+        ChatGPT_reply = gptreply()
+        addassistantmessage(ChatGPT_reply)
     else:
-        messages.append({"role": "user", "content": user_input})
-        response = client.chat.completions.create(
-        messages=messages,
-        model="gpt-3.5-turbo")
-        ChatGPT_reply = response.choices[0].message.content
-        messages.append({"role": "assistant", "content": ChatGPT_reply})
+        addusermessage(user_input)
+        ChatGPT_reply = gptreply()
+        addassistantmessage(ChatGPT_reply)
     engine.save_to_file(ChatGPT_reply, "response.mp3")
     engine.runAndWait()
     return "response.mp3"
@@ -78,7 +95,6 @@ def object_detection():
         cv2.imwrite('frame.jpg', frame)
         log_string = detector.detect_objects()
         if log_string:
-            # Announce detected objects
             announcement = log_string
             print(announcement)
             print("detection working")
@@ -96,30 +112,19 @@ def object_detection():
     cv2.destroyAllWindows()
 
 def save_screenshots(directory_name, image_file):
-    # Set the parent directory
     parent_directory = "training"
-
-    # Create the full directory path
     full_directory = os.path.join(parent_directory, directory_name)
-
-    # Create the directory if it doesn't exist
     if not os.path.exists(full_directory):
         os.makedirs(full_directory)
-
-    # Save 15 copies of the image file in the directory
     for i in range(15):
         file_name = os.path.join(full_directory, f"screenshot_{i+1}.jpg")
         try:
-            # Copy the image file to the new location
             with open(image_file, 'rb') as source, open(file_name, 'wb') as dest:
                 dest.write(source.read())
             print(f"Screenshot {i+1} saved: {file_name}")
         except IOError as e:
             print(f"Error saving screenshot {i+1}: {e}")
         cv2.waitKey(500)
-
-import subprocess
-import sys
 
 def run_detector_script():
     try:
