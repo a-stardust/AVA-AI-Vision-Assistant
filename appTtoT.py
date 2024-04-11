@@ -13,6 +13,7 @@ from face_recognizer import recognize_faces
 from src.prompt import system
 import os
 from dotenv import load_dotenv
+import datetime
 load_dotenv()
 
 import os
@@ -41,7 +42,7 @@ messages = [{"role": "system", "content":system}]
 
 
 def CustomChatGPT(user_input):
-    if 'read' in user_input:
+    if 'read' in user_input.lower():
         print("reading")
         messages.append({"role": "user", "content": user_input})
         extracted_text = extractor.extract_text_from_image("frame.jpg")
@@ -53,6 +54,17 @@ def CustomChatGPT(user_input):
         model="gpt-3.5-turbo")
         
         ChatGPT_reply =response.choices[0].message.content
+        messages.append({"role": "assistant", "content": ChatGPT_reply})
+    if "save the person as" in str(user_input).lower():
+        words = str(user_input).split()
+        last_word = words[-1]
+        save_screenshots(last_word,'frame.jpg')
+        run_detector_script()
+        messages.append({"role": "user", "content": user_input})
+        response = client.chat.completions.create(
+        messages=messages,
+        model="gpt-3.5-turbo")
+        ChatGPT_reply = response.choices[0].message.content
         messages.append({"role": "assistant", "content": ChatGPT_reply})
 
     else:
@@ -77,6 +89,8 @@ def object_detection():
         if not ret:
             print("Failed to capture frame")
             break
+        frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+
         cv2.imwrite('frame.jpg', frame)
         log_string = detector.detect_objects()
         if log_string:
@@ -92,23 +106,6 @@ def object_detection():
                 else:
                     messages.append({"role": "system", "content": announcement +"persons detected:" + str(faces)})
                     print(faces)
-                    # names=''
-                    # if len(faces) > 1:
-                    #     for i in range(0,len(faces)-1):
-                    #         names+=faces[i]
-                    #         names+=' and '
-                    #     names+=faces[len(faces)-1]
-                    #     names= 'say hi to' + names
-                    #     tts(names)
-                      
-
-                    # elif len(faces)==1 :
-                    #     names='say hi to' + str(faces[0])
-                    #     tts(names)
-
-            # Append announcement to conversation
-
-
             else:
                 messages.append({"role": "system", "content": announcement})
 
@@ -116,31 +113,51 @@ def object_detection():
         if cv2.waitKey(1) & 0xFF == ord('q') or keyboard.is_pressed('q'):
             break
 
-        sleep(5)  # Wait for 5 seconds before checking again
+        sleep(3)  # Wait for 5 seconds before checking again
     cap.release()
     cv2.destroyAllWindows()
 
 
-# def tts(text):
-#     engine = pyttsx3.init()
-#     engine.setProperty("rate", 150)
-#     engine.setProperty("voice", "english-us")
-#     try:
-#         if text:
-#             engine.say(text)
-#             engine.runAndWait()
-#     except:
-#         pass
 
+def save_screenshots(directory_name, image_file):
+    # Set the parent directory
+    parent_directory = "training"
+
+    # Create the full directory path
+    full_directory = os.path.join(parent_directory, directory_name)
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(full_directory):
+        os.makedirs(full_directory)
+
+    # Save 15 copies of the image file in the directory
+    for i in range(15):
+        file_name = os.path.join(full_directory, f"screenshot_{i+1}.jpg")
+        try:
+            # Copy the image file to the new location
+            with open(image_file, 'rb') as source, open(file_name, 'wb') as dest:
+                dest.write(source.read())
+            print(f"Screenshot {i+1} saved: {file_name}")
+        except IOError as e:
+            print(f"Error saving screenshot {i+1}: {e}")
+        cv2.waitKey(500)
+
+import subprocess
+import sys
+
+def run_detector_script():
+    try:
+        subprocess.run([sys.executable, "detector.py", "--train", "-m=hog"], check=True)
+        print("Detector script executed successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing detector script: {e}")
 
 # Start object detection in a separate thread
 object_detection_thread = threading.Thread(target=object_detection)
 object_detection_thread.daemon = True
 object_detection_thread.start()
 
-# TTSthread = threading.Thread(target=tts)
-# TTSthread.daemon = True
-# TTSthread.start()
+
 title = "AVA - AI Vision Assistant"
 description = '''AVA is your friendly vision assistant designed to help you navigate the world with confidence. Using real-time data from your surroundings, AVA can describe objects, people, and even read text aloud.
 \n
