@@ -48,7 +48,7 @@ AVA is an innovative AI-driven solution designed to provide essential support to
 
 
 ##  Demo
-<iframe width="420" height="315"
-src="https://youtube.com/shorts/fDlbYUtkwls">
-</iframe>
+[![Watch the video](https://img.youtube.com/vi/9AWcpi7TFyE/maxresdefault.jpg)](https://youtu.be/9AWcpi7TFyE)
+
+### [Demo Video](https://youtu.be/9AWcpi7TFyE)
 
