@@ -47,3 +47,8 @@ AVA is an innovative AI-driven solution designed to provide essential support to
 - Enjoy seamless assistance and accessibility features provided by AVA.
 
 
+##  Demo
+<iframe width="420" height="315"
+src="https://youtube.com/shorts/fDlbYUtkwls">
+</iframe>
+
